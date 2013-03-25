@@ -1,0 +1,110 @@
+\begin{thebibliography}{16}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Banfield(1999)}]{Banfield:1999:JSSOBK:v04i01}
+Banfield J (1999).
+\newblock \enquote{\pkg{Rweb}: Web-based Statistical Analysis.}
+\newblock \emph{Journal of Statistical Software}, \textbf{4}(1), 1--15.
+\newblock ISSN 1548-7660.
+\newblock \urlprefix\url{http://www.jstatsoft.org/v04/i01}.
+
+\bibitem[{Crane \emph{et~al.}(2006)Crane, Pascarello, and
+  James}]{Craneetal:AJAXinAction}
+Crane D, Pascarello E, James D (2006).
+\newblock \emph{Ajax in Action}.
+\newblock Manning Publications.
+
+\bibitem[{Firth(2003)}]{Firth:CGIwithR}
+Firth D (2003).
+\newblock \enquote{\pkg{CGIwithR}: Facilities for Processing Web Forms Using
+  \proglang{R}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{8}(10), 1--8.
+\newblock ISSN 1548-7660.
+\newblock \urlprefix\url{http://www.jstatsoft.org/v08/i10}.
+
+\bibitem[{Flanagan(2011)}]{Flanagan:JavaScriptDefinitive}
+Flanagan D (2011).
+\newblock \emph{\proglang{JavaScript}: The Definitive Guide}.
+\newblock O'Reilly Media.
+
+\bibitem[{Hope and Walther(2008)}]{HopeWalther:WebSecTestCookbook}
+Hope P, Walther B (2008).
+\newblock \emph{Web {S}ecurity {T}esting {C}ookbook: {S}ystematic {T}echniques
+  to {F}ind {P}roblems {F}ast}.
+\newblock O'Reilly Media.
+
+\bibitem[{Horner(2011)}]{Horner:brew}
+Horner J (2011).
+\newblock \emph{brew: Templating Framework for Report Generation}.
+\newblock R package version 1.0-6,
+  \urlprefix\url{http://CRAN.R-project.org/package=brew}.
+
+\bibitem[{Horner(2013)}]{Horner:rApache}
+Horner J (2013).
+\newblock \emph{\pkg{rApache}: Web Application Development with \proglang{R}
+  and Apache}.
+\newblock \urlprefix\url{http://www.rapache.net/}.
+
+\bibitem[{Lecoutre(2003)}]{Lecoutre:R2HTML}
+Lecoutre E (2003).
+\newblock \enquote{The {R2HTML} Package.}
+\newblock \emph{R News}, \textbf{3}(3), 33--36.
+\newblock \urlprefix\url{http://cran.r-project.org/doc/Rnews/Rnews_2003-3.pdf}.
+
+\bibitem[{Meyer(2007)}]{Meyer:CSSWebDesign}
+Meyer EA (2007).
+\newblock \emph{\proglang{CSS} Web Site Design}.
+\newblock Peachpit Press.
+
+\bibitem[{Newton and Wernisch(2007)}]{NewtonWernisch:Rwui}
+Newton R, Wernisch L (2007).
+\newblock \enquote{\pkg{Rwui}: A Web Application to Create User Friendly Web
+  Interfaces for \proglang{R} Scripts.}
+\newblock \emph{\proglang{R} News}, \textbf{7}(2), 32--35.
+\newblock \urlprefix\url{http://www.r-project.org/doc/Rnews/Rnews_2007-2.pdf}.
+
+\bibitem[{{\proglang{R} Core Team}(2012)}]{RCore:R}
+{\proglang{R} Core Team} (2012).
+\newblock \emph{\proglang{R}: A Language and Environment for Statistical
+  Computing}.
+\newblock \proglang{R} Foundation for Statistical Computing, Vienna, Austria.
+\newblock {ISBN} 3-900051-07-0, \urlprefix\url{http://www.R-project.org}.
+
+\bibitem[{Robbins(2006)}]{Robbins:WebDesignNutshell}
+Robbins JN (2006).
+\newblock \emph{Web Design in a Nutshell}.
+\newblock O'Reilly Media.
+
+\bibitem[{{RStudio, Inc.}(2013)}]{RStudio:shiny}
+{RStudio, Inc} (2013).
+\newblock \emph{\pkg{shiny}: Web Application Framework for \proglang{R}}.
+\newblock \proglang{R}~package version~0.4.0,
+  \urlprefix\url{http://CRAN.R-project.org/package=shiny}.
+
+\bibitem[{Sullivan and Liu(2011)}]{SullivanLiu:WebAppSecBeginners}
+Sullivan B, Liu V (2011).
+\newblock \emph{Web {A}pplication {S}ecurity: {A} {B}eginner's {G}uide}.
+\newblock McGraw-Hill.
+
+\bibitem[{Urbanek(2011)}]{Urbanek:FastRWeb}
+Urbanek S (2011).
+\newblock \emph{\pkg{FastRWeb}: {F}ast {I}nteractive {F}ramework for {W}eb
+  {S}cripting {U}sing \proglang{R}}.
+\newblock \proglang{R}~package version~1.0-1,
+  \urlprefix\url{http://CRAN.R-project.org/package=FastRWeb}.
+
+\bibitem[{Urbanek(2012)}]{Urbanek:Rserve}
+Urbanek S (2012).
+\newblock \emph{\pkg{Rserve}: Binary \proglang{R} server}.
+\newblock \proglang{R}~package version~0.6-8,
+  \urlprefix\url{http://CRAN.R-project.org/package=Rserve}.
+
+\end{thebibliography}

@@ -1,0 +1,111 @@
+body {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	text-align: center;
+	background-color: #a7c8e2;
+}
+
+#contents {
+	text-align: left;
+	width: 900px;
+	margin: 20px auto;
+	padding: 20px;
+	background-color: #EFF2F6;
+	border: 2px solid #5E90A4;
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	-khtml-border-radius: 20px;
+	border-radius: 20px;
+}
+
+.level1 {
+	width: 856px;
+	margin: 10px;
+	padding: 10px;
+	background-color: #FFFFFF;
+	border: 1px solid #5E90A4;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-khtml-border-radius: 10px;
+	border-radius: 10px;
+}
+
+.hidden {
+	display: none;
+}
+
+#optionsContainer {
+	float: left;
+	width: 250px;
+	padding: 10px;
+	background-color:#777;
+	border: 1px solid #000000;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	-khtml-border-radius: 7px;
+	border-radius: 7px;
+}
+
+.optionsBox {
+	margin: 5px auto;
+	padding: 5px;
+	width: 230px;
+	background-color: #EFF2F6;
+	border: 1px solid #000000;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	border-radius: 5px;
+}
+
+#plotContainer {
+	width: 574px;
+	float: right;
+	text-align: center;
+}
+
+#formButtonsContainer {
+	text-align: center;
+}
+
+#divClear {
+	clear: both;
+}
+
+h1 {
+	color: #5E90A4;
+	text-align: center;
+	font-variant: small-caps;
+	margin: 0;
+}
+
+h4 {
+	margin: 0 0 5px 5px;
+}
+
+p {
+	margin: 0 0 5px 1em;
+}
+
+.formItem {
+	padding-bottom: 5px;
+}
+
+label {
+	width: 50px;
+	float: left;
+	text-align: right;
+	margin-right: 10px;
+	display: block;
+}
+
+.firstEltAfterLegend {
+	margin-top: 0px;
+	padding-top: 8px;
+}
+
+img {
+	margin-left: auto;
+	margin-right: auto;
+}

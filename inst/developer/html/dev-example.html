@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" > 
+
+<!-- -->
+<!-- This is a simple example of how to use the core package. The main purpose of this
+	page is to show how the HTML and Javascript interact with R. -->
+<!-- -->
+
+<head>
+
+	<title> Plot! </title>
+	
+	<!-- -->
+	<!-- You may have to modify the relative web path for the .css file. -->
+	<!-- -->
+	<style type="text/css" title="currentStyle" media="screen"> 
+		@import "/style/style-dev-example.css";
+	</style>
+	
+	<!-- -->
+	<!-- You may have to modify the relative web paths for these scripts. -->
+	<!-- -->
+	<script type="text/javascript" src="/scripts/jquery-1.6.2.min.js"> </script>
+	<script type="text/javascript" src="/scripts/jquery.form.js"> </script>
+	<script type="text/javascript" src="/scripts/jquery.xml.js"> </script>
+	<script type="text/javascript" src="/scripts/formSubmitScript-dev-example.js"> </script>
+</head>
+
+<body>
+
+<div id="contents">
+
+<div class="level1">
+<h1> Plot! </h1>
+</div>
+
+<noscript>
+	<div class="level1">
+	<p class="sectionHeader">ERROR:</p>
+	<p>This page requires JavaScript be available and enabled to function properly.  
+		Please enable JavaScript or upgrade your browser.</p>
+	</div>
+</noscript>
+
+<div class="level1">
+
+<div id="optionsContainer">
+
+	<div class="optionsBox">
+		<h4> Instructions: </h4>
+		<p>This page will plot two variables from a data set in an uploaded file. The file is assumed to be in csv format. To begin, select your data file below. Then choose which variables to plot and the plot type and click the "Plot!" button to create the plot.</p>
+	</div>
+
+	<!-- -->
+	<!-- The HTML file contains two separate forms; one for the data file -->
+	<!-- and one for the variables to plot and the plot type. -->
+	<!-- In both forms, you may have to modify the relative web paths for the .cgi scripts. -->
+	<!-- -->
+	<form id="fileSubmitForm" method="POST" action="/cgi-bin/WebDevelopR-dev.cgi" enctype="multipart/form-data">
+		<input type="hidden" name="RScriptToCall" value="example-dev1.R" />
+
+		<div class="optionsBox" id="fieldsSelectFile">
+			<h4> 1. Select File with Data to Plot: </h4>
+
+			<div class="formItem" id="fileInput">
+				<!-- -->
+				<!-- Note the text 'onchange="submitFile();"' in the next line. -->
+				<!-- This means that when the user selects a file, the JavaScript -->
+				<!-- function submitFile() will be called. -->
+				<!-- -->
+				<input type="file" name="data" size="15" onchange="submitFile();" />
+			</div>
+		</div>
+	</form>
+
+	<form id="optionsSubmitForm" method="POST" action="/cgi-bin/WebDevelopR-dev.cgi" enctype="multipart/form-data">
+		<input type="hidden" name="RScriptToCall" value="example-dev2.R" />
+	
+		<div class="optionsBox" id="fieldsSelectVariables">
+			<h4> 2. Select the Variables to Plot: </h4>
+
+			<div class="formItem">
+				<label for="xVar">x-axis:</label>
+				<select name="xVar"></select>
+			</div>
+			<div class="formItem">
+				<label for="yVar">y-axis:</label>
+				<select name="yVar"></select>
+			</div>
+		</div>
+
+		<div class="optionsBox" id="fieldsSelectType">
+			<h4> 3. Select the Plot Type: </h4>
+
+			<div class="formItem">
+				<label for="method">Dot:</label>
+				<input type="radio" name="method" value="dot" checked="checked" />
+			</div>
+			<div class="formItem">
+				<label for="method">Line:</label>
+				<input type="radio" name="method" value="line" />
+			</div>
+		</div>
+
+		<div id="formButtonsContainer">
+			<!-- -->
+			<!-- We provide two buttons for the form here. -->
+			<!-- The onClick attribute specifies what JavaScript function -->
+			<!-- will be executed when the user clicks each button. -->
+			<!-- -->
+			<input type="button" value="Plot!" id="btnSubmitForm" onClick="submitToPlot();" disabled="disabled"/>
+			<input type="button" value="Clear Entries" id="btnReset" onClick="resetForm();" />
+		</div>
+	</form>
+</div>
+
+<div id="plotContainer" >
+</div>
+
+<div id="divClear">
+</div>
+
+</div>
+
+</div>
+
+
+
+<address>
+Developed by Evan Ray, Peter Krafft, and John Staudenmayer, 2011
+</address>
+
+</body>
+</html>

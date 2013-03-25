@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" > 
+
+<!-- -->
+<!-- This is a simple example of how to use the package. The main purpose of this
+	page is to show the various types of input that you can use. -->
+<!-- Read the comments below for more explanation. -->
+<!-- -->
+
+<head>
+	<!-- -->
+	<!-- The page title appears at the top of the browser. -->
+	<!-- -->
+	<title> This is a Sample Title </title>
+	
+	<!-- -->
+	<!-- You may have to modify the relative web path for the style file. -->
+	<!-- -->
+	<style type="text/css" title="currentStyle" media="screen"> 
+		@import "/style/style.css";
+	</style>
+	
+	<!-- -->
+	<!-- You may have to modify the relative web paths for these scripts. -->
+	<!-- -->
+	<script type="text/javascript" src="/scripts/jquery-1.6.2.min.js"> </script>
+	<script type="text/javascript" src="/scripts/jquery.form.js"> </script>
+	<script type="text/javascript" src="/scripts/formSubmitScript.js"> </script>
+</head>
+
+<body>
+
+<div id="contents">
+
+<!-- -->
+<!-- The header appears at the top of the page. -->
+<!-- -->
+<div class="level1">
+<h1> This is a Sample Header </h1>
+</div>
+
+<noscript>
+	<div class="level1">
+	<p class="sectionHeader">WARNING:</p>
+	<p>This page is optimized to work with JavaScript.  Please consider enabling 
+	JavaScript (and then reloading this page) or upgrading your web browser.</p>
+	</div>
+</noscript>
+
+<div class="level1">
+
+<p class="sectionHeader">Please fill out the form below:</p>
+	
+<!-- -->
+<!-- You may have to modify the relative web path for processForm.cgi. -->
+<!-- -->
+<form id="mainForm" method="POST" action="/cgi-bin/processForm.cgi" enctype="multipart/form-data">
+
+	<!-- -->
+	<!-- Anything with an "input" tag will show up as an element in the formData variable in R.
+			The "name" attribute of that input becomes the name in the formData list. If
+			multiple inputs have the same name, the corresponding element of formData will be
+			a vector containing all of the inputs of that name. -->
+	<!-- -->
+	
+	<fieldset>
+		<legend> Load the File for Analysis </legend>
+		
+		<p> This page computes various column statistics of the dataset you select. 
+			The file is assumed to be in csv format. </p>
+		
+		<div class="formItem">
+			<label for="data">File: </label>
+			<input type="file" name="data" size="40" />
+		</div>
+	</fieldset>
+	
+	<fieldset>
+		<legend> Enter a Name and Description for the Analysis </legend>
+		
+		<p> The name and description of your analysis will be printed with the
+			output. </p>
+		
+		<div class="formItem">
+			<label for="title"> Name: </label>
+			<input type="text" name="title" size="40" />
+		</div>
+		
+		<div class="formItem">
+			<label for="description"> Description: </label>
+			<textarea name="description" rows="4" cols="30">This is the default description.</textarea>
+		</div>
+	</fieldset>
+	
+	<fieldset>
+		<legend> Select the Statistics to Use </legend>
+		
+		<p>Check as many of the following statistics as you would like to compute.</p>
+		
+		<div class="formItem">
+			<label for="methods">Mean: </label>
+			<input type="checkbox" name="methods" value="mean" />
+		</div>
+		
+		<div class="formItem">
+			<label for="methods" class="methods">Median: </label>
+			<input type="checkbox" name="methods" value="median" />
+		</div>
+		
+		<p>Select one of the following.</p>
+		
+		<div class="formItem">
+			<label for="methods" class="methods">Standard Deviation: </label>
+			<input type="radio" name="methods" value="sd" /> 
+		</div>
+		
+		<div class="formItem">
+			<label for="methods" class="methods">Variance: </label>
+			<input type="radio" name="methods" value="var" />
+		</div>
+	</fieldset>
+
+	<fieldset>
+		<legend> Choose the Output Format </legend>
+		
+		<div class="formItem">
+			<label for="plot" class="methods">Plot format: </label>
+			<select name="plot">
+				<option value="png">png</option>
+				<option value="jpeg">jpeg</option>
+			</select>
+		</div>
+	</fieldset>
+
+	<fieldset>
+		<legend></legend>
+		<div id="formButtonsContainer">
+			<input type="submit" value="Submit" id="btnSubmit" />
+			<input type="reset" value="Reset Form" />
+		</div>
+	</fieldset>
+	
+</form>
+
+</div>
+
+<div id="hidden">
+</div>
+
+</div>
+
+</body>
+</html>

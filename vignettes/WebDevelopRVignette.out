@@ -1,0 +1,25 @@
+\BOOKMARK [1][-]{Section.0.Introduction.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{Section.1.Existing approaches and technical background.1}{Existing approaches and technical background}{}% 2
+\BOOKMARK [1][-]{Section.2.New approach.1}{New approach}{}% 3
+\BOOKMARK [2][-]{Subsection.3.0.Turnkey version: For people with little experience as web programmers.2}{Turnkey version: For people with little experience as web programmers}{Section.2.New approach.1}% 4
+\BOOKMARK [3][-]{Subsubsection.3.1.0.Overview.3}{Overview}{Subsection.3.0.Turnkey version: For people with little experience as web programmers.2}% 5
+\BOOKMARK [3][-]{Subsubsection.3.1.1.Package Use and Installation.3}{Package Use and Installation}{Subsection.3.0.Turnkey version: For people with little experience as web programmers.2}% 6
+\BOOKMARK [3][-]{Subsubsection.3.1.2.Example.3}{Example}{Subsection.3.0.Turnkey version: For people with little experience as web programmers.2}% 7
+\BOOKMARK [2][-]{Subsection.3.1.Developer version: For more experienced web programmers.2}{Developer version: For more experienced web programmers}{Section.2.New approach.1}% 8
+\BOOKMARK [3][-]{Subsubsection.3.2.0.Overview.3}{Overview}{Subsection.3.1.Developer version: For more experienced web programmers.2}% 9
+\BOOKMARK [3][-]{Subsubsection.3.2.1.Package Use and Installation.3}{Package Use and Installation}{Subsection.3.1.Developer version: For more experienced web programmers.2}% 10
+\BOOKMARK [3][-]{Subsubsection.3.2.2.Example.3}{Example}{Subsection.3.1.Developer version: For more experienced web programmers.2}% 11
+\BOOKMARK [1][-]{Section.3.Some notes about security.1}{Some notes about security}{}% 12
+\BOOKMARK [1][-]{Section.4.Conclusions.1}{Conclusions}{}% 13
+\BOOKMARK [1][-]{Section..R Code for Turnkey Example.1}{R Code for Turnkey Example}{}% 14
+\BOOKMARK [1][-]{Section.A.R Code for Developer Example.1}{R Code for Developer Example}{}% 15
+\BOOKMARK [1][-]{Section.B.Set Up and Configuration.1}{Set Up and Configuration}{}% 16
+\BOOKMARK [2][-]{Subsection.C.0.Install a Perl interpreter and necessary Perl modules.2}{Install a Perl interpreter and necessary Perl modules}{Section.B.Set Up and Configuration.1}% 17
+\BOOKMARK [2][-]{Subsection.C.1.Install and configure a web server.2}{Install and configure a web server}{Section.B.Set Up and Configuration.1}% 18
+\BOOKMARK [2][-]{Subsection.C.2.Install WebDevelopR.2}{Install WebDevelopR}{Section.B.Set Up and Configuration.1}% 19
+\BOOKMARK [2][-]{Subsection.C.3.Copy files and set file permissions.2}{Copy files and set file permissions}{Section.B.Set Up and Configuration.1}% 20
+\BOOKMARK [2][-]{Subsection.C.4.Edit Configuration Settings.2}{Edit Configuration Settings}{Section.B.Set Up and Configuration.1}% 21
+\BOOKMARK [2][-]{Subsection.C.5.Edit/create HTML file(s).2}{Edit/create HTML file\(s\)}{Section.B.Set Up and Configuration.1}% 22
+\BOOKMARK [2][-]{Subsection.C.6.Modify your R script.2}{Modify your R script}{Section.B.Set Up and Configuration.1}% 23
+\BOOKMARK [1][-]{Section.C.Utility Functions.1}{Utility Functions}{}% 24
+\BOOKMARK [1][-]{Section.D.Resources for Web Development.1}{Resources for Web Development}{}% 25

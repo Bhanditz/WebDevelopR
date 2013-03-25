@@ -1,0 +1,1072 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                              %
+% LaTeX file for paper:                        %               
+%                                              %
+%  WebDevelopR             %
+%                                              %
+%  Last changed:                               %
+%                 8 Mar 2013
+%                 by Evan                      %
+%                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[article,nojss]{jss}
+\include{GrandMacros}
+\usepackage{verbatim,array,multicol,multirow}
+\usepackage{paralist}
+\usepackage{longtable}
+\usepackage{booktabs}
+
+%\VignetteIndexEntry{Using WebDevelopR}
+
+
+\newcommand{\RDocHeading}[1]{\textbf{#1}}
+
+% Based on http://tex.stackexchange.com/questions/12703/how-to-create-fixed-width-table-columns-with-text-raggedright-centered-raggedlef
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+
+
+%% This is from http://mintaka.sdsu.edu/GF/bibliog/latex/floats.html
+%% Alter some LaTeX defaults for better treatment of figures:
+%    % See p.105 of "TeX Unbound" for suggested values.
+%    % See pp. 199-200 of Lamport's "LaTeX" book for details.
+%    %   General parameters, for ALL pages:
+%    \renewcommand{\topfraction}{0.9}	% max fraction of floats at top
+%    \renewcommand{\bottomfraction}{0.8}	% max fraction of floats at bottom
+%    %   Parameters for TEXT pages (not float pages):
+%    \setcounter{topnumber}{2}
+%    \setcounter{bottomnumber}{2}
+%    \setcounter{totalnumber}{4}     % 2 may work better
+%    \setcounter{dbltopnumber}{2}    % for 2-column pages
+%    \renewcommand{\dbltopfraction}{0.9}	% fit big float above 2-col. text
+%    \renewcommand{\textfraction}{0.07}	% allow minimal text w. figs
+%    %   Parameters for FLOAT pages (not text pages):
+%    \renewcommand{\floatpagefraction}{0.7}	% require fuller float pages
+%	% N.B.: floatpagefraction MUST be less than topfraction !!
+%    \renewcommand{\dblfloatpagefraction}{0.7}	% require fuller float pages
+%
+%	% remember to use [htp] or [htpb] for placement
+
+
+\author{Evan Ray\\University of Massachusetts, Amherst \And
+				Peter Krafft\\Massachusetts Institute of Technology \AND
+				John Staudenmayer\\University of Massachusetts, Amherst}
+
+\title{\pkg{WebDevelopR}: A Website Development Package for \proglang{R}}
+
+
+\Plainauthor{Evan L. Ray, Peter Krafft, John Staudenmayer}
+\Plaintitle{WebDevelopR: A Website Development Package for R}
+				
+\Abstract{
+Many statistical methods would be useful to non-statisticians who lack the ability to program the method in a language such as \proglang{R} or even use programs written by others. One way to address this is for statisticians to create websites that receive data, automatically run the statistical method, and produce output. The purpose of this paper is to introduce an \proglang{R} package and tools that make this relatively easy to do. Our work augments and improves upon the \proglang{R} package \pkg{CGIwithR}. We review that and several other packages and discuss their benefits and drawbacks. We then present the \pkg{WebDevelopR} package, which addresses some of those drawbacks. We discuss two versions of this new package. The first is relatively simple and is intended for statisticians without experience in website development, and the second is intended for statisticians who have more experience in creating websites.  Both versions are illustrated with simple examples.
+}
+\Keywords{AJAX, CGI, \proglang{HTML}, \proglang{JavaScript}, \proglang{Perl}}
+\Plainkeywords{AJAX, CGI, HTML, JavaScript, Perl}
+
+
+\Address{
+  Evan L. Ray\\
+  Department of Mathematics and Statistics\\
+  University of Massachusetts, Amherst\\
+	Lederle Graduate Research Tower, 710 North Pleasant Street\\
+	Amherst, Massachusetts 01003, U.S.A. \\
+	E-mail: \email{ray@math.umass.edu}
+}
+
+
+\begin{document}
+
+\section{Introduction}
+\label{sec:introduction}
+
+It is common for statisticians to develop methods to process and analyze data stored in formatted files, such as output from electronic devices or laboratory instruments. Many statisticians then make those methods available to others through an \proglang{R} \citep{RCore:R} package or other software. However, using these software packages can be difficult for non-statisticians who want to apply these methods to their data. One option for making this easier is to build a website that serves as a graphical user interface for the statistical analysis software.
+
+%For instance, we work with a kinesiologist who uses a hip mounted accelerometer to measure a person's movement, and we have developed methods to manage the text files that come from those accelerometers and estimate quantities like energy expenditure and walking time \citep{Staudenmayeretal:ANNEstPA}. We face a problem though: other kinesiologists want to use our methods. One solution would be for the kinesiologists to work with a statistician, but that is not always possible. An alternative is to make a website that receives the accelerometer files, runs our algorithms, and produces formatted output. This solution has the advantage of making our methods available to a wider audience.
+
+This paper describes an \proglang{R} package, \pkg{WebDevelopR}, and a set of tools to create such a website.  These new tools address some technical difficulties with the earlier package \pkg{CGIwithR} \citep{Firth:CGIwithR}.  They also aim to fill a gap in existing solutions by providing a method of building a website to run \proglang{R} scripts that makes it comparatively easy to both create and customize the website.  There are two versions of the \pkg{WebDevelopR} package.  One version, {\tt turnkey}, is simpler to use and is intended for a statistician with little or no experience in website design.  It allows the developer to create a simple website with a form for the site user to provide input to the \proglang{R} script and a page to display the results of the analysis.  This requires only knowledge of \proglang{R} and enough familiarity with \proglang{HTML} to edit a template form to provide the desired user input fields.  The second version of the package, {\tt developer}, is intended for the statistician who is comfortable with \proglang{JavaScript} and \proglang{HTML}, and it is more flexible.
+
+The remainder of the paper is organized as follows. In Section \ref{section:ExistingApproaches} we describe several existing approaches, their benefits, and their limitations. We focus on the package \pkg{CGIwithR}, and discuss some technical problems a developer might encounter in using that package. In Section \ref{section:PackageDescription} we present a new \proglang{R} package, \pkg{WebDevelopR}, that addresses those drawbacks and technical difficulties. We describe two versions of this package and demonstrate how each can be used through an example website. In Section \ref{section:Security} we discuss some security considerations to be aware of when using \pkg{WebDevelopR}. The paper concludes with a brief discussion. A separate file with appendices contains the code used in the examples, detailed instructions describing how to use the package, documentation of \proglang{R} utilities in the package, and a list of resources we have found useful to learn about web development.  A reader who simply wants to use the package can skip to Section \ref{section:PackageDescription}.
+
+\section{Existing approaches and technical background}
+
+\label{section:ExistingApproaches}
+
+The ability to use \proglang{R} for statistical analysis inside of a website application is widely useful, and there are many tools available that make this possible. Each of these tools has different purposes, strengths and weaknesses that make it more or less appropriate for a particular project. We briefly discuss five current options to give a sense of what is available, and then we describe a sixth tool, \pkg{CGIwithR}, in more detail.  It is the basis for our approach. For more tools and examples, two resources about web-based \proglang{R} are
+\begin{itemize}
+\item {\tt http://cran.r-project.org/doc/FAQ/R-FAQ.html\#R-Web-Interfaces}, and
+\item {\tt http://biostat.mc.vanderbilt.edu/twiki/bin/view/Main/StatCompCourse}
+\end{itemize}
+Table~\ref{URLTable} provides the current web address of each approach we discuss.
+
+One of the simplest choices for web development using \proglang{R} is \pkg{Rweb}, which provides a template for a website that has an embedded \proglang{R} application. Three versions of the website are described in \cite{Banfield:1999:JSSOBK:v04i01}. The first is a command prompt that is initialized to hold whatever code the developer wants to present to the user. The user may delete or otherwise edit the code in the prompt. The second is a similar interface that uses \proglang{JavaScript} to enhance the appearance of the site. The third provides an interface to run a few pre-selected \proglang{R} routines. The main purpose of these tools is for running low intensity scripts on the host servers, such as class homework assignments. The websites provided by \pkg{Rweb} can be used as templates for developing new sites, but knowledge of \proglang{Perl} and \proglang{HTML} is required to do that.
+
+\pkg{Rwui} \citep{NewtonWernisch:Rwui} is another tool for rapidly developing a website application that runs an \proglang{R} script. The \pkg{Rwui} website uses a questionnaire to learn what user inputs, analyses, and output the developer would like to include. It then automatically builds code for a website that runs with the Apache Tomcat web server. The generation process is quick and requires practically no knowledge of web development, but the resulting website cannot be easily customized.
+
+\pkg{FastRWeb} \citep{Urbanek:FastRWeb} is an option that interfaces with \proglang{R} through the \pkg{Rserve} \citep{Urbanek:Rserve} package.  The advantage of this is that an instance of \proglang{R} is initialized before the page request is received by the web server; this enables rapid response times.  Creation of a fully funtional web application using \pkg{FastRWeb} requires knowledge of \proglang{HTML} and \proglang{JavaScript} though.
+
+The goal of \pkg{rApache} \citep{Horner:rApache} is to be able to write a website in \proglang{R} without using a scripting language such as \proglang{Ruby} or \proglang{PHP}. It consists of an Apache module for linking to \proglang{R} and an \proglang{R} package for linking to Apache. \pkg{rApache} provides a number of functions that allow web development to be totally controlled by \proglang{R}. That large degree of flexibility comes at the cost of being substantially more difficult to use. \pkg{rApache} benefits from a large number of online examples and tutorials.
+
+%, for example:
+%\begin{itemize}
+%\item {\tt \footnotesize http://www.stat.ucla.edu/\%7Ejeroen/live.html}, and
+%\item {\tt \footnotesize http://www.r-statistics.com/2010/02/
+%
+%	web-development-with-r-an-hd-video-tutorial-of-jeroen-ooms-talk/}
+%\end{itemize}
+%http://www.r-statistics.com/2010/02/r-web-application-hello-world-using-rapache-7min-video-tutorial/ (tutorial),
+%http://www.stat.ucla.edu/~jeroen/files/useR2009slides.pdf (tutorial slides),
+
+A more recent option is \pkg{shiny} \citep{RStudio:shiny}.  This package makes it very easy to build websites that interact with \proglang{R} without any knowledge of web programming or other scripting languages.  A drawback to \pkg{shiny} is that applications developed with it can only be deployed online with the \pkg{shiny} web server, which has only been created recently and has a relatively limited feature set.  Integration with more feature-rich web servers such as Apache will not be feasible without more development.
+
+
+\begin{table}
+\centering
+\begin{tabular}{ l  l  }
+	\toprule
+  Utility Name & Current URL \\ 
+  \midrule
+  \pkg{Rweb} & {\tt http://www.math.montana.edu/Rweb/} \\ 
+  \midrule
+  \pkg{Rwui} & {\tt http://sysbio.mrc-bsu.cam.ac.uk/Rwui/} \\ 
+  \midrule
+  \pkg{FastRWeb} & {\tt http://www.rforge.net/FastRWeb/} \\ 
+  \midrule
+  \pkg{rApache} & {\tt http://biostat.mc.vanderbilt.edu/rapache/} \\ 
+  \midrule
+  \pkg{shiny} & {\tt http://www.rstudio.com/shiny/} \\ 
+  \midrule
+  \pkg{CGIwithR} & {\tt http://www.omegahat.org/CGIwithR/} \\ 
+  \bottomrule
+\end{tabular}
+\caption{Current URLs of the tools discussed.}
+\label{URLTable}
+\end{table}
+%table summarizing current approaches that includes names and URLs
+
+\pkg{CGIwithR} (Firth, 2003) is similar to several of the above packages in that it enables the developer to use \proglang{R} as a CGI scripting language (i.e., to be able to dynamically generate content to be displayed in a web browser, possibly using input from a web form in order to do so). It accomplishes this by providing a \proglang{Perl} script that acts as a connecting layer between the web server and \proglang{R}. When a web form is submitted to the web server, the server passes the submitted data on to this \proglang{Perl} script. The script stores the submitted data in environment variables and then runs the desired \proglang{R} script. When \proglang{R} loads, the \pkg{CGIwithR} package pulls any submitted information from the environment variables and stores it in a native \proglang{R} object.  The \proglang{R} script then processes the data, and any generated output is captured.  When \proglang{R} exits, the \proglang{Perl} script sends this captured output to the web browser where it is (typically) displayed to the site user as a new web page.  This process is illustrated in Figure~\ref{fig:CGIwithRDiagram}.
+
+
+\begin{figure}[htpb]
+	\centering
+		\includegraphics[width=\textwidth]{CGIwithRDiagram.pdf}
+	\caption{Diagram of a server call using \pkg{CGIwithR}.}
+	\label{fig:CGIwithRDiagram}
+\end{figure}
+
+The \pkg{CGIwithR} package is often a good solution, but it has limitations when statistical analysis requires the user to upload large data files or when the analysis takes an extended time to complete. We discuss the causes of these problems and what \pkg{WebDevelopR} does to address them here; additional features of \pkg{WebDevelopR} are discussed in Section \ref{section:PackageDescription}.
+
+One problem encountered with \pkg{CGIwithR} is that a limited amount of data can be stored in the environment variables used to pass submitted data to \proglang{R}.  The exact size limits depend upon the configuration of the server, but the result is that it can be impossible to upload large data files. On our web server, we were unable to upload files that were about 6MB.  In order to solve this problem, \pkg{WebDevelopR} stores submitted data in temporary files on the hard drive, rather than in environment variables.  Each time the script is called, a unique session ID is generated to identify these temporary files, and the locations of these files are passed to \proglang{R} via command line arguments.
+
+A second problem with \pkg{CGIwithR} is that the connection between the web server and the site user's browser may time out while the \proglang{R} script is still running. When this happens, no results are sent to the user and the web server typically terminates any CGI scripts associated with the connection. Most web servers provide configuration options to set the timeout length (for example, in the Apache HTTP Server the {\tt TimeOut} directive can be used).  However, even if this setting is changed on the server, the user's browser may terminate a connection after a few minutes of inactivity (see for example the {\tt network.http.keep-alive.timeout} setting in the Mozilla Firefox browser). \pkg{WebDevelopR} resolves this problem by periodically sending a character of data to the user's browser while the \proglang{R} script is executing. These characters are not displayed to the user, but they keep the connection alive until the analysis is complete.
+
+Creation of websites with \pkg{CGIwithR} requires knowledge of \proglang{HTML} and \proglang{JavaScript}.  The {\tt turnkey} version of the \pkg{WebDevelopR} package alleviates this requirement by providing a template website that requires only minor edits to the \proglang{HTML} to create a useful site.  This template website includes some user interface features tailored for lengthy statistical calculations, using AJAX (Asynchronous \proglang{JavaScript} and \proglang{XML}) to provide status updates to the website user while the calculations are progressing.  Similar functionality could be created with \pkg{CGIwithR} or several of the other packages we have discussed, but it would require knowledge of \proglang{JavaScript}.  On the other hand, the {\tt turnkey} version of \pkg{WebDevelopR} provides a simple \proglang{R} function to return status updates to the website user.  The {\tt developer} version of the package also facilitates development with AJAX by allowing the developer to easily specify the data type of the response from the CGI script.  These features are discussed more in Section \ref{section:PackageDescription}.
+
+\section{New approach}
+
+\label{section:PackageDescription}
+
+Two versions of the \pkg{WebDevelopR} package are available, {\tt turnkey} and {\tt developer}.  Both versions of the package use the same general framework as \pkg{CGIwithR}: \proglang{Perl} scripts provide an interface between the web server and \proglang{R}.  The main differences between \pkg{CGIwithR} and the \pkg{WebDevelopR} lie in the functionality provided by that interface.  Several of these new features were mentioned in the previous section: submitted form data is stored in temporary files on the hard drive rather than in environment variables; the connection between the web browser and the server is kept alive during lengthy computations by sending a character of data to the browser every second; and some features are added to simplify the use of AJAX.
+
+The {\tt turnkey} version of the package builds on that foundation and provides a template web application consisting of a form and a results page, and a set of \proglang{R} functions to facilitate website creation with only basic knowledge of \proglang{HTML}.  This template can be set up to run a desired \proglang{R} script by editing configuration settings and modifying the provided web form to include the necessary user input fields; no knowledge of languages like \proglang{JavaScript} or \proglang{Perl} is required.  The {\tt developer} version provides only the basic functionality for passing data from submitted web forms to \proglang{R}, keeping the connection between the server and the web browser alive during lengthy computations, and returning the output from \proglang{R} to the web browser.  This version is intended for experienced web programmers who want to make use of the opportunities for rich user interactions made possible by AJAX.  We describe each of these versions of the package in detail and provide examples in Sections \ref{subsec:TurnkeyVersionDesc} and \ref{subsec:DeveloperVersionDesc}.
+
+\subsection{Turnkey version: For people with little experience as web programmers}
+\label{subsec:TurnkeyVersionDesc}
+
+In this section we describe the {\tt turnkey} version of the package.  We give an overview of how it works, discuss package use and installation, and give an example.
+
+\subsubsection{Overview}
+\label{subsec:TurnkeyVersionOverview}
+
+The {\tt turnkey} version of \pkg{WebDevelopR} combines several \proglang{HTML}, \proglang{JavaScript}, and \proglang{Perl} files with some \proglang{R} code to create a simple web application.  The web site user's primary point of interaction with the application is a web form.  This form is configured by the application developer, and allows the user to select data files to upload to the server for analysis and/or choose other options for the analysis.  The form submission is processed by an \proglang{R} script on the server, and results are displayed on a new web page.
+
+When the user submits the form, the application follows one of two paths depending on whether the user's web browser has \proglang{JavaScript} enabled.  If \proglang{JavaScript} is not available, the form is submitted to the {\tt processForm.cgi} script, which is written in \proglang{Perl}.  This script does the following:
+\begin{enumerate}
+\item The script generates a unique session ID which is used throughout processing to keep track of temporary files and options the user selected.  Session IDs are assigned sequentially and are obtained from a plain text file on the web server.  Please see the security notes in Section \ref{section:Security} below for further discussion.
+\item It then stores the data from the submitted form in temporary files.  These temporary files will be accessed later by the \proglang{R} script.
+\item It sets up a temporary file to store status updates for the user.  Users who do not have \proglang{JavaScript} enabled will not see these status updates during processing, but they will be displayed when processing is complete.
+\item The script next creates a hidden \proglang{HTML} element and a thread that prints a `.' to the browser every second in order to keep the connection from timing out.  This thread will continue to run until \proglang{R} has finished running.
+\item The script now runs an \proglang{R} script, which loads the submitted data from the temporary files, processes it, and outputs results to be displayed to the user in \proglang{HTML}.  \proglang{R} code is provided to read the data from temporary files and store it in native \proglang{R} variables.
+\item When the processing in \proglang{R} is completed, the thread printing periods is killed, status updates are retrieved and returned to the user's browser, and output from \proglang{R} is returned to the user.
+\item Finally, all temporary files created in steps 2 and 3 above are deleted.
+\end{enumerate}
+
+This process is illustrated in Figure~\ref{fig:NoJSAvailableDiagram}.
+
+\begin{figure}[htpb]
+	\centering
+		\includegraphics[width=0.9\textwidth]{NoJSAvailableDiagram.pdf}
+	\caption{Diagram of a server call using \pkg{WebDevelopR} when \proglang{JavaScript} is not available on the user's web browser.}
+	\label{fig:NoJSAvailableDiagram}
+\end{figure}
+
+
+If \proglang{JavaScript} is available, the functionality in {\tt processForm.cgi} is divided into several stages to provide a better user experience.  In this case, when the form is submitted it is sent to the {\tt preProcessForm.cgi} script, which handles items 1 and 2 of the {\tt processForm.cgi} script.  Once the form preprocessing is completed, the user's browser loads the results page.  From the results page, two different scripts on the web server are called.  First, the wrapper script {\tt R.cgi} runs.  This script handles the remaining items 3 through 7 in the list above.  The results page also periodically calls {\tt statusUpdate.cgi}, which retrieves any status updates provided by the \proglang{R} script and sends them back to the user's browser where they are displayed when they are received.
+
+
+\subsubsection{Package Use and Installation}
+
+When \proglang{R} loads, it has access to the submitted form data through two functions: \code{form.data} and \code{file.details}.  The \code{form.data} function returns a list with one component for each field in the submitted form.  The names of the components in this list are taken from the \code{name} attribute of the corresponding form fields in the \proglang{HTML} document.  If the name of the form field in the \proglang{HTML} document began with a number, it is prepended with an X.  In the case of file upload fields, the corresponding entry in the list contains the full path to the temporary file on the server where the uploaded file was stored (or an empty string if no file was uploaded).  For other form fields, the corresponding component of the list is a vector of submitted values (or an empty string if no options were specified for that form element).  For example, for a group of checkboxes the entry in the list will be a vector of the values of the checkboxes that were selected by the site user.  The list returned by \code{form.data} also includes one other component: \code{sessionID}, which contains the session ID assigned to the form submission.
+
+Additional information about each uploaded file are in the list returned by \code{file.details}, which only contains entries for form fields where a file was selected.   For each uploaded file, this list contains a vector of three values:
+\begin{enumerate}
+\item \code{file.name} is the original file name of the uploaded file (including the extension),
+\item \code{content.type} is the MIME content type of the file, and
+\item \code{text.or.binary} is \proglang{Perl}'s educated guess as to whether the uploaded file is a text or binary file.  Either ``text'' or ``binary''.
+\end{enumerate}
+
+\pkg{WebDevelopR} includes several utility functions that can be used to facilitate web development.  These are summarized in Table~\ref{UtilFunctionTable}, their use is demonstrated in the sample code in Appendix \ref{sec:AppendixRCodeTurnkeyExample}, and more complete documentation is given in Appendix \ref{section:UtilFunctionDoc}.  See also Appendix \ref{section:WebDevResources} for some other resources and \proglang{R} packages that can be helpful in web programming.
+
+\begin{table}
+\centering
+\begin{tabular}{ L{0.25\textwidth} L{0.65\textwidth} }
+	\toprule
+  Function Name & Description \\ 
+  \midrule
+  \code{status.update} & Provides status updates to the user while the \proglang{R} script is still running. \\ 
+  \midrule
+	\code{web.jpg}, \code{web.png} & Used to create .png and .jpeg image files, and to embed these images in the results page. \\
+  \midrule
+	\code{web.print} & Prints \proglang{R} objects in a formatted {\tt <pre> ... </pre>} HTML environment (similar to verbatim in LaTeX). \\
+  \midrule
+	\code{web.table}, \code{web.csv}, \code{web.csv2} & Prints an \proglang{R} data frame or matrix to a text file and inserts a link to the file in the results page. \\
+  \bottomrule
+\end{tabular}
+\caption{The utility functions included in \pkg{WebDevelopR}.}
+\label{UtilFunctionTable}
+\end{table}
+%table summarizing utility functions included with the package
+
+
+There are seven major tasks to do in order to set up a working website with the {\tt turnkey} version of \pkg{WebDevelopR}, which we describe next.  More detailed information about each of these steps is in Appendix \ref{section:SetupConfig}.
+
+\begin{enumerate}
+\item Install a \proglang{Perl} interpreter and necessary modules.  \proglang{Perl} is included by default on most Unix-like operating systems.  For Windows, you'll need to install an implementation of \proglang{Perl} such as Strawberry \proglang{Perl} ({\tt http://strawberryperl.com/}).  You will also need to ensure that the following \proglang{Perl} Modules are installed (typically, they will be by default):
+\begin{itemize}
+\item {\tt CGI}
+\item {\tt Fcntl}
+\item {\tt HTML::Entities}
+\item {\tt Time::HiRes}
+\item {\tt threads}
+\end{itemize}
+
+\item Install and configure a web server.  \pkg{WebDevelopR} can be used with any web server that supports CGI scripts written in \proglang{Perl}.  The Apache HTTP server is one common choice ({\tt http://httpd.apache.org/}).  It should be configured to enable CGI scripts.
+
+\item Install the \pkg{WebDevelopR} package.  Note that if your webserver will run with a different username than yours, you may need to install the package to a site library to ensure that an instance of \proglang{R} created by your web server will have access to the package.  This can be achieved with the \code{lib} argument to the \code{install.packages} command in \proglang{R}.
+
+\item Copy files included with \pkg{WebDevelopR} to appropriate locations on your server.  Copy the files in the {\tt turnkey{\textbackslash}cgi-bin} folder in the installation directory to your web server's {\tt cgi-bin} folder, and the files in the {\tt turnkey{\textbackslash}html} folder in the installation directory to your web server's {\tt html} folder  (or equivalent -- for the Apache server on Windows, this folder is named {\tt htdocs}).  Permissions on these files should be set so that the web server can execute the CGI scripts and read the files in the {\tt html} folder.  Also create a {\tt system} directory outside of your web server's {\tt html} folder and the {\tt cgi-bin} where ``system'' files can be stored and copy the contents of the {\tt turnkey{\textbackslash}system} folder in the installation directory to it.  Your web server should have read and write access to the files in this directory.
+
+\item Edit configuration settings in CGI and \proglang{JavaScript} files.  Each of the CGI scripts in the {\tt cgi-bin} and the \proglang{JavaScript} scripts in the {\tt html{\textbackslash}scripts} folder has a section at the top with configuration settings for things like the locations of files on the web server, the title at the top of the web page, and how frequently status updates are retrieved.
+
+\item Modify the provided {\tt index.html} file to provide form fields for site users to enter input.  The file includes a form with examples of all of the basic form input field types.
+
+\item Modify your \proglang{R} script to use submitted form data and provide output to site users and place it in the web server's {\tt cgi-bin} folder.  See the example code in Appendix \ref{sec:AppendixRCodeTurnkeyExample} and the package documentation for more information.
+\end{enumerate}
+
+
+
+
+\subsubsection{Example}
+
+\label{subsubsection:TurnkeyExample}
+
+In this section we present a simple example of how the {\tt turnkey} version of \pkg{WebDevelopR} could be used.  Our example is not very exciting, but it demonstrates the type of functionality that can be achieved.  The \proglang{R} code used for this example is in Appendix \ref{sec:AppendixRCodeTurnkeyExample}.  This \proglang{R} code uses the utility functions provided by \pkg{WebDevelopR}  (listed in Table~\ref{UtilFunctionTable}) to send status updates to the website user and include printed \proglang{R} objects, graphics, and links to .csv files on the results page.
+
+The form pictured in Figure \ref{fig:SSForm} allows the site user to select a data file to upload, enter a name and description of the analysis to be displayed in the results, choose which summary statistics will be calculated, and select the image format for a plot of the data.
+
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[width=.85\textwidth]{SSForm.png}
+	\caption{Screenshot of the web form for the {\tt turnkey} version}
+	\label{fig:SSForm}
+\end{figure}
+
+Once the user has entered this information and clicks the submit button, she is taken to a waiting page while the \proglang{R} script runs.  While on this page, status updates provided by the \proglang{R} script are retrieved from the server and displayed to the user every few seconds.  This screen is pictured in Figure \ref{fig:SSWaiting}.
+
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[width=.85\textwidth]{SSWaiting.png}
+	\caption{Screenshot of the waiting page for the {\tt turnkey} version}
+	\label{fig:SSWaiting}
+\end{figure}
+
+When the analysis is complete, all status updates are displayed to the user as well as the results of the analysis (a print of the data set, a plot, and a link to a .csv file containing more results).  A screenshot of this page is in Figure \ref{fig:SSResults}.
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=.85\textwidth]{SSResults.png}
+	\caption{Screenshot of the results page for the {\tt turnkey} version}
+	\label{fig:SSResults}
+\end{figure}
+
+
+
+\subsection{Developer version: For more experienced web programmers}
+\label{subsec:DeveloperVersionDesc}
+
+We now turn to the {\tt developer} version of \pkg{WebDevelopR}.  Again, we describe how it works, discuss package use and installation, and give an example. 
+
+\subsubsection{Overview}
+\label{subsubsec:DeveloperOverview}
+
+The {\tt developer} version of \pkg{WebDevelopR} provides a \proglang{Perl} script that processes form submissions, runs an \proglang{R} script, and sends the output from \proglang{R} to the website user.  The provided \proglang{Perl} script does the actions below.  Note that some of these are the same as in Section \ref{subsec:TurnkeyVersionDesc}.  We list them again here to make the paper easier to read.
+
+\begin{enumerate}
+\item The script generates a unique session ID which is used throughout processing to keep track of temporary files and options the user selected.  Session IDs are assigned sequentially and are obtained from a text file on the web server.  Please see the security notes in Section \ref{section:Security} below for further discussion.
+\item It then stores the data from the submitted form in temporary files.  These temporary files will be accessed later by the \proglang{R} script.
+\item The script next creates a \proglang{JSON}, \proglang{XML}, or hidden \proglang{HTML} element (depending on the response document type, which can be specified via a configuration setting).  It then creates a thread that prints a `.' to the browser every second in order to keep the connection from timing out.  This thread will continue to run until \proglang{R} has finished running.
+\item The script now runs the desired \proglang{R} script, which loads the submitted data from the temporary files, processes it, and outputs results to be displayed to the user in \proglang{JSON}, \proglang{XML}, or \proglang{HTML}.  \proglang{R} code is provided to handle reading the data from temporary files and storing it in native \proglang{R} variables.  A hidden input element in the submitted form specifies the name of the \proglang{R} script to call; for security reasons, this script name is validated against a list of scripts specified in the CGI script that processes the form submission.
+\item When the processing in \proglang{R} is completed, the thread printing periods is killed and the output from \proglang{R} is returned to the user's web browser.
+\item Finally, all temporary files created in steps 2 and 3 above are deleted.
+\end{enumerate}
+
+
+
+\subsubsection{Package Use and Installation}
+
+The \code{form.data} and \code{file.details} functions can be used to access the uploaded data as described in Section \ref{subsec:TurnkeyVersionDesc} above.  The same steps are required to install the {\tt developer} version as the {\tt turnkey} version with a few small changes.  In step 4, the files should be copied from the {\tt developer{\textbackslash}cgi-bin} and {\tt developer{\textbackslash}system} folders in the package installation directory instead of the corresponding {\tt turnkey} folders.  When using the {\tt developer} version of the package all \proglang{HTML}, \proglang{CSS}, \proglang{JavaScript}, and other desired CGI functionality must be programmed by the site developer.  Therefore, steps 5 and 6 of the installation procedure for the {\tt turnkey} version do not apply to the {\tt developer} version.  Detailed installation instructions are given in Appendix \ref{section:SetupConfig}.  Appendix \ref{section:WebDevResources} has a list of resources about web development that we have found helpful.
+
+
+\subsubsection{Example}
+\label{subsubsec:DeveloperExample}
+
+To demonstrate the use of the core version of the package, we present an example of a website that creates a plot of two variables from data in an uploaded .csv file.  The website is pictured in Figure \ref{fig:DeveloperSSInitial}.
+
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[width=.85\textwidth]{DeveloperSSInitial.png}
+	\caption{Screenshot of the example page for the {\tt developer} version when the page is first loaded.}
+	\label{fig:DeveloperSSInitial}
+\end{figure}
+
+
+This website includes a couple of features that give a sense of the possibilities for smooth user interactions that can be created with AJAX.  Specifically, user input can be processed as it is entered without bringing the user to a new page each time data is submitted to the web server.  The first time we see this in action is when we populate the drop-down menus with options for the user to select which variables will be used in the plot.  These options are automatically filled in when the user selects a data file, based on the variable names in the heading row of the file.  In order to accomplish this, as soon as the user selects a data file, text that says ``Loading...'' is displayed and the file is uploaded to the server.  On the server, the file is read in by an \proglang{R} script, and the variable names in the file are extracted and sent back to the user's web brower where they are inserted into the dropdown menus as shown in Figure \ref{fig:DeveloperSSWithVars}.  Similarly, once the user selects the variables to plot and the plot type and clicks the ``Plot!'' button, these options are sent to a second \proglang{R} script which creates the plot.  The plot is inserted into the same web page (Figure \ref{fig:DeveloperSSFinal}).  A single user interface and a single web page is therefore maintained throughout the user's interaction with the web application.
+
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[width=.85\textwidth]{DeveloperSSWithVars.png}
+	\caption{Screenshot of the example page for the {\tt developer} version when the variable names have been loaded from the selected data file.}
+	\label{fig:DeveloperSSWithVars}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=.85\textwidth]{DeveloperSSFinal.png}
+	\caption{Screenshot of the example page for the {\tt developer} version with the final plot.}
+	\label{fig:DeveloperSSFinal}
+\end{figure}
+
+
+This website consists of 6 separate files:
+\begin{itemize}
+\item An \proglang{HTML} file with the content of the web page
+\item A \proglang{CSS} file to control the visual display of the web page
+\item A \proglang{JavaScript} file to handle user interactions with the page and form submissions
+\item The {\tt WebDevelopR-dev.cgi} script included with \pkg{WebDevelopR}
+\item Two \proglang{R} scripts: one reads in the data file, sends the variable names back to the browser, and stores the data file on the server for later use by the second \proglang{R} script, and the second creates the plot.
+\end{itemize}
+These files are included in the installation directory of the package and are all thoroughly commented.  The \proglang{R} scripts are also included in Appendix \ref{sec:AppendixRCodeDevExample} of this paper for the reader's convenience.
+
+The website has two different forms which are submitted to the server separately.  The first form has only one user input field -- the file selection field, which is named ``\code{data}''.  This file selection field is set up so that whenever the user chooses a new file, the form is submitted to the server (i.e., the file the user selected is uploaded to the server).
+
+Upon submission, the \proglang{R} script {\tt example-dev1.R} is called to process the file upload.  This script reads the uploaded data file and prints the variable names in the header row, as well as the session ID, in \proglang{XML} format.  It also saves the data file on the server so that it can be used to create the plot later.  The output from this script looks like the following:
+
+\begin{Code}
+<var1>Sepal.Length</var1>
+<var2>Sepal.Width</var2>
+<var3>Petal.Length</var3>
+<var4>Petal.Width</var4>
+<sessionID>163</sessionID>
+\end{Code}
+
+When the \proglang{R} script finishes running, this output is sent back to the browser.  A \proglang{JavaScript} function in the browser is then called to process the results.  This function inserts the variable names into the drop-down menus in the second form, and creates a hidden field in the second form with the session ID from the first form submission.
+
+The user can then select the variables to use in the plot and the plot type, and click the ``Plot!'' button.  When this is done, the second of the two forms on the web page is submitted to the server and a different \proglang{R} script is called to process the submission.  This script creates the plot specified by the user's selections and saves it as an image file on the server.  It then prints the \proglang{HTML} to include the image on the web page.  The ouput from this script looks like the following:
+
+\begin{Code}
+<imgTagContainer>
+<img src=\"/results/session163-image.png" width="100%" ></img>
+</imgTagContainer>
+\end{Code}
+
+When the \proglang{R} script exits, this output is sent back to the web browser.  A \proglang{JavaScript} function is then called which inserts the image tag into the web page so that the plot is displayed to the user.
+
+
+
+\section{Some notes about security}
+\label{section:Security}
+
+There are several aspects of security to keep in mind when building web applications with \pkg{WebDevelopR} (or any other CGI scripting platform).  These range from the ``standard'' concerns about preventing unauthorized access to your web server, to ensuring that some users do not use up so many computational resources that the server is unable to serve its intended clients, to securing the potentially confidential data that users upload so that anyone on the internet cannot access it.  In this section we present an incomplete list of suggestions and thoughts on these topics.  Several books on the subject are available (e.g., \cite{SullivanLiu:WebAppSecBeginners} and \cite{HopeWalther:WebSecTestCookbook}), in addition to online resources such as the Open Web Application Security Project ({\tt https://owasp.org}).
+
+\begin{itemize}
+\item Do not allow the web site user to enter \proglang{R} commands which will be executed on the server.  This is dangerous if proper precautions are not taken because commands like \code{system} and \code{file.remove} can be used to alter important files on the server.
+\item Do not use input from the user to specify file names to read or write, or as a part of system commands.  Again, this could allow a malicious user to modify important system files.
+\item As detailed in Appendix \ref{section:SetupConfig}, there are options in several of the CGI scripts to specify limits on the size of data uploaded through the form.  It is recommended that you use these options to prevent disk space on the server from being used up.
+\item As mentioned above, Session IDs are generated sequentially, which means that they can be easily guessed.  Additionally, transmissions between the server and the user's web browser are not encrypted and no checks are performed to ensure that the user accessing a particular file on the server (such as a graph or .csv file with analysis results) is the same one who submitted the data.  This could be a problem if your users are submitting confidential or private data sets and do not want the results of the data analysis to be visible to others.  To address this, you should change the method used to generate Session IDs and implement a secure connection between the web browser and the user's browser.  Both of these changes are possible, but are beyond the scope of \pkg{WebDevelopR}.
+\end{itemize}
+
+
+\section{Conclusions}
+
+It is common for statisticians to want to make analysis techniques they have developed available to others, including non-statisticians and people without programming expertise. Websites are a convenient way to achieve this goal. As a result, many solutions have been developed to facilitate the creation of websites that run \proglang{R} code.  Each of these tools provides slightly different functionality, and makes a different trade-off between the ease of initial site creation and the ability to customize the site to suit project needs.
+
+\pkg{WebDevelopR} encompasses two different solutions to this problem.  One, the {\tt developer} version, provides only the basic script required to facilitate communication between a site user's web browser and an \proglang{R} script.  In many ways, this script can be viewed as an extension of \pkg{CGIwithR}, fixing a few technical problems associated with large data files and long computations, addressing some security issues, and allowing the web programmer to choose the data interchange format to be used in communications between the server and the browser. This version of the package puts the burden of creating the website with \proglang{HTML}, \proglang{CSS}, and \proglang{JavaScript} on the developer. However, it gives the developer the flexibility to create a variety of interactive user interfaces for the web application.
+
+The {\tt turnkey} version of the package builds on the basic functionality in the {\tt developer} version, and includes a fully functional web site. This version allows statisticians with limited web development knowledge to create a web application that runs \proglang{R} scripts more easily than they could with other tools such as \pkg{rApache}, but with greater potential for customization than with packages such as \pkg{Rwui}.
+
+\section*{Acknowledgments}
+This was partially supported by U.S. National Institutes of Health grants 1RC1HL099557 and RO1CA121005.
+
+
+
+
+
+
+\bibstyle{jss}
+\bibliography{WebDevelopRRefs}
+
+
+
+
+
+
+\appendix
+
+\begin{center}
+{\huge Appendix}
+\end{center}
+
+\section[R Code for Turnkey Example]{\proglang{R} Code for Turnkey Example}
+\label{sec:AppendixRCodeTurnkeyExample}
+
+This is the \proglang{R} code used to process the form submission in the example of the {\tt turnkey} version of the package in Section \ref{subsec:TurnkeyVersionDesc}.
+
+\begin{Code}
+library("WebDevelopR")
+
+########### Accessing the user input ###############
+
+# The form in sample.html contains input fields named
+# "data", "title", "description", "methods", and "plot".
+submitted.data <- form.data()
+file <- submitted.data[["data"]]
+title <- submitted.data[["title"]]
+description <- submitted.data[["description"]]
+methods <- submitted.data[["methods"]]
+plot <- submitted.data[["plot"]]
+
+############ Using the utility functions ###########
+
+# Status updates are shown in a separate section than the results.
+# The append=FALSE argument means that previous status updates are removed.
+status.update("Processing your submission...", append=FALSE)
+
+if(sum(methods == "sd" | methods == "var") == 0) {
+  status.update("Error: You must select a type of spread.")
+  quit("no")
+}
+
+if(length(file.details()) == 0) {
+  data <- data.frame(x = sample(1:5,5,TRUE),
+    y = sample(1:5,5,TRUE), z = sample(1:5,5,TRUE))
+  status.update("No file provided. Using random data...",
+    append = TRUE)
+} else {
+  data <- read.csv(file)
+}
+
+# You can print strings to the results section using the cat function.
+cat("This is the", title, "analysis.", description,
+  "R used the following dataset:")
+
+# web.print displays a nicely formatted version of R's print.
+# The argument is a list of objects to print.
+web.print(list(data))
+
+results <- list()
+
+# The elements of "methods" are taken from the "value" attributes
+# of the inputs that the user selected (specified in the HTML code).
+for(m in methods) {
+  if(m == "mean") {
+    results$mean = apply(data, 2,
+      function(x) {mean(as.numeric(x))})
+  } else if(m == "median") {
+    results$median = apply(data, 2,
+      function(x) {median(as.numeric(x))})
+  } else if(m == "sd") {
+    results$spread = apply(data, 2, sd)
+  } else if(m == "var") {
+    results$spread = apply(data, 2, var)
+  }
+}
+
+results <- data.frame(results)
+
+# The web.png and web.jpeg functions embed graphics into the
+# results section displayed to the user.
+if(plot == "png") {
+  ### The alt text is displayed if the image cannot be viewed.
+  web.png("results.png", attributes.text = "alt=\"Results\"",
+    width = 600, height = 300)
+  barplot(results$spread, names.arg = names(data),
+    main = "column spread")
+  garbage <- dev.off()
+} else {
+  web.jpeg("results.jpeg", attributes.text = "alt=\"Results\"",
+    width = 600, height = 300)
+  barplot(results$spread, names.arg = names(data),
+    main = "column spread")
+  garbage <- dev.off()
+}
+
+# web.csv creates a link to a file that the user can download.
+web.csv(results, "results.csv", before.link.text = "Click ",
+  link.text = "here",
+  after.link.text = " to download the rest of your analysis.",
+  open.new.window = FALSE, enclose.in.p = FALSE)
+
+status.update("Analysis complete.", append = TRUE)
+\end{Code}
+
+
+
+
+\section[R Code for Developer Example]{\proglang{R} Code for Developer Example}
+\label{sec:AppendixRCodeDevExample}
+
+The example website for the {\tt developer} version of \pkg{WebDevelopR}, described in Section \ref{subsec:DeveloperVersionDesc}, includes two \proglang{R} scripts.  We provide the code for each of these scripts in this appendix.  The first script reads in the uploaded data file, extracts the variable names from the column headers, and prints the variable names in an \proglang{XML} format.  It also saves the data file so that the next script can use it to create the plot.
+
+\begin{Code}
+# The location where the uploaded file will be stored
+FILE_WRITE_DIR <- '/var/www/system/'
+
+library("WebDevelopR")
+
+# The form in sample-core.html contains the input field
+# "data".  This R script can access that input through the
+# form.data or file.details functions.
+# It can also access the sessionID through form.data.
+submitted.data <- form.data()
+sessionID = submitted.data[["sessionID"]]
+
+# Save the data file so that it can be accessed by the second R script
+# in order to create the plot. We put the session ID in the file name
+# so that the file won't be overwritten by another user's submission.
+file <- submitted.data[["data"]]
+data <- read.csv(file)
+save(data, file = paste(FILE_WRITE_DIR, 'session', sessionID,
+  '-loaded-data.RData', sep=''))
+
+# Output some XML with the names of variables in the uploaded data file.
+# This will be used to populate the drop-down menus on the web page.
+variables <- colnames(data)
+
+for(i in 1:length(variables)) {
+	cat("<var",i,">",variables[i],"</var",i,">\n",sep='')
+}
+
+# Output some XML with the sessionID.  We need to pass this on
+# to the second R script so that it can read in the correct data file.
+cat("<sessionID>",sessionID,"</sessionID>",sep='')
+\end{Code}
+
+
+The second script creates the plot based on the user input and saves it as a graphic file on the server.  It then prints \proglang{HTML} code to include the image on the web page.
+
+\begin{Code}
+# The location where the uploaded file was stored
+FILE_READ_DIR <- '/var/www/system/'
+
+# The location where the plot should be stored
+RESULTS_DIR <- '/var/www/html/results/'
+
+# The relative web path to the location where the plot is stored
+WEB_PATH_RESULTS_DIR <- '/results/'
+
+library("WebDevelopR")
+
+# The form in sample.html contains input fields for
+# "xVar", "yVar", "method", and "firstSessionID".
+# This R file can access these inputs through the elements
+# associated with each of those names of the list returned by form.data.
+submitted.data <- form.data()
+
+# Read in data from the previously uploaded file.
+load(paste(FILE_READ_DIR, 'session', submitted.data[["firstSessionID"]],
+  '-loaded-data.RData', sep=''))
+
+# Obtain the variables for the x and y axes of the plot selected
+# by the user.
+x_var <- submitted.data[["xVar"]]
+y_var <- submitted.data[["yVar"]]
+
+# Obtain the plot type for the plot selected by the user
+if(submitted.data[["method"]] == "line") {
+	method = 'l'
+} else {
+	method = 'p'
+}
+
+# Create the plot
+png(paste(RESULTS_DIR, "session", submitted.data[["sessionID"]], "-",
+  "image.png", sep = ""), width = 600, height = 600);
+plot(data[, x_var], data[, y_var], type = method, xlab = x_var, ylab = y_var)
+garbage <- dev.off()
+
+# Output an image tag which will be inserted into the web page.
+cat("<imgTagContainer>\n");
+cat("<img src=\"", WEB_PATH_RESULTS_DIR, "session",
+  submitted.data[["sessionID"]],
+  "-image.png\" width=\"100%\" ></img>\n", sep = "");
+cat("</imgTagContainer>");
+\end{Code}
+
+
+
+
+\section[Set Up and Configuration]{Set Up and Configuration}
+\label{section:SetupConfig}
+
+There are seven major tasks to do in order to start using \pkg{WebDevelopR}: \begin{inparaenum}[(1)]
+\item Install a \proglang{Perl} interpreter and necessary \proglang{Perl} modules,
+\item Install and configure a web server, 
+\item Install \pkg{WebDevelopR},
+\item Copy files included with \pkg{WebDevelopR} to appropriate locations on your server and set file permissions,
+\item Edit configuration settings in CGI and \proglang{Javascript} files,
+\item Modify the provided {\tt index.html} file to include form elements for site users to enter input, and
+\item Modify your \proglang{R} script to use submitted form data and provide output to site users.
+\end{inparaenum}  Each of these tasks is discussed in a Subsection of this Appendix.  Note that the package has been tested with Linux and Windows; we expect that it would work with other operating systems as well, but have not tested this.
+
+
+\subsection[Install a Perl interpreter and necessary Perl modules]{Install a \proglang{Perl} interpreter and necessary \proglang{Perl} modules}
+
+\proglang{Perl} interpreters are included with a standard installation of most Unix-like operating systems.  If you do not have \proglang{Perl}, see your operating system documentation for instructions on how to install it.  For Windows, you'll need to install an implementation of \proglang{Perl} such as Strawberry \proglang{Perl} (http://strawberryperl.com/) or ActivePerl (http://www.activestate.com/activeperl).
+
+You will also need to ensure that the following \proglang{Perl} Modules are installed (typically, they will be by default):
+\begin{itemize}
+\item {\tt CGI}
+\item {\tt Fcntl}
+\item {\tt HTML::Entities}
+\item {\tt Time::HiRes}
+\item {\tt threads}
+\end{itemize}
+
+You can check whether a Perl module is installed by entering \code{perl -MMODULENAME -e 1} at a command prompt (with ``\code{MODULENAME}'' replaced by the name of the module you are checking).  For instance, to check whether the \code{HTML::Entities} module is installed, enter \code{perl -MHTML::Entities -e 1}.
+
+If you don't see an error message in response to this command, the module is installed.  If you do see an error message, you'll have to install the module.  See the documentation at {\tt http://www.cpan.org/misc/cpan-faq.html\#How\_install\_Perl\_modules} for instructions.
+
+
+\subsection{Install and configure a web server}
+
+There are many options for which web server you want to use, and installation and configuration details will vary with what solution you choose and which operating system you are using.  The Apache HTTP server is one common choice; we provide brief instructions for installing and configuring it in a Windows environment here.  Details for installation and configuration of Apache in a Unix environment depend on the version of Unix you are using; see documentation for your distribution for more guidance.  Further documentation for Apache is also available online at {\tt http://httpd.apache.org/docs/2.2/}, and more detailed instructions for installation under Windows are at {\tt http://httpd.apache.org/docs/2.2/platform/windows.html}.  Please note that these instructions are intended to get you ``up and running'' quickly.  We make no guarantees about the security of the configuration you'll end up with by following these instructions; you should read the documentation for more information.
+
+\textbf{Installation Instructions for Apache in a Windows Environment:}
+\begin{itemize}
+\item First, download the software from {\tt http://httpd.apache.org/download.cgi}  In writing these instructions, I used the file ``Win32 Binary without crypto (no mod\_ssl) (MSI Installer): {\tt httpd-2.2.19-win32-x86-no\_ssl.msi}''; you could look for something similar.  When you've downloaded the file, verify its integrity by following the instructions on the download page.
+\item Run the installation wizard and follow the prompts to complete the installation.  In this process, consider choosing a different location to install the program to, such as {\tt C:\textbackslash{\textbackslash}Apache}.  This can prevent some problems with restrictive permissions that Windows sets for files and folders under {\tt C:\textbackslash{\textbackslash}Program Files}.
+\item Edit configuration settings to enable CGI scripts.
+\begin{itemize}
+\item Open the configuration file.  In the Start Menu, find the ``Apache HTTP Server 2.2'' folder (the name may be slightly different), the ``Configure Apache Server'' subfolder, and choose ``Edit the Apache httpd.conf Configuration File''.  You can edit this configuration file in a text editor such as notepad.
+\item Make sure the line ``{\tt LoadModule cgi\_module modules/mod\_cgi.so}'' appears in this file and is not commented out (i.e., there is not a `\#' at the beginning of this line).
+\item Make sure a line like ``{\tt     ScriptAlias /cgi-bin/ "C:/Apache/cgi-bin/"}'' appears in the file and is not commented out (i.e., there is not a `\#' at the beginning of this line).
+\item Note the locations of the {\tt DocumentRoot} and the {\tt cgi-bin} directory.  You will copy the necessary files to these locations when you install \pkg{WebDevelopR} (see Section \ref{Subsection:CopyAndPermissions} below).
+\item Note the port that the web server is listening on, specified by the {\tt Listen} directive.  It is most convenient if this is set to 80.
+\item Make sure the web server is started by clicking the ``Start Apache in Console'' shortcut in the Apache folder in the Start Menu.  Then test it to make sure it is working by opening a browser and going to {\tt http://localhost/}.  You should see a default page provided by Apache.  If you don't, see the documentation at {\tt http://httpd.apache.org/docs/2.2/platform/windows.html} for a more detailed installation guide to troubleshoot.
+\item Also test to make sure that your web server can run CGI scripts by going to {\tt http://localhost/cgi-bin/printenv.pl}.  (You may have to edit the first line of this script to point to the location of the \proglang{Perl} interpreter on your computer.)  This is a simple CGI script provided by the Apache server which prints the environment variables.  If you do not see any output from this script, see the documentation at {\tt http://httpd.apache.org/docs/2.2/howto/cgi.html} for troubleshooting information.
+\end{itemize}
+\end{itemize}
+
+
+\subsection[Install WebDevelopR]{Install \pkg{WebDevelopR}}
+
+Installing the package can be done as usual, with one caveat: if your webserver will run with a different username than yours (probably a good idea), you may need to install the package to a site library to ensure that an instance of \proglang{R} created by your web server will have access to the package.  This can be achieved with the \code{lib} argument to \code{install.packages}.  See \code{?libPaths} and \code{?install.packages} in \proglang{R} for more information.
+
+
+\subsection{Copy files and set file permissions}
+
+\label{Subsection:CopyAndPermissions}
+
+After you have installed \pkg{WebDevelopR}, you will need to copy several files from the installation directory of the package to locations where the web server will access them.  The files to copy will be in either the {\tt turnkey} or {\tt developer} subdirectory of the package installtion directory, depending on which version of the package you are using.  Each of these directories contains three subdirectories with files to copy: {\tt cgi-bin}, {\tt system}, and {\tt html}.
+
+\paragraph*{{\tt cgi-bin} folder:}
+
+Copy the contents of the {\tt cgi-bin} folder in the installation directory to your web server's {\tt cgi-bin} folder.  The files to copy depend on whether you are using the {\tt turnkey} version or the {\tt developer} version of \pkg{WebDevelopR}.
+
+For the {\tt turnkey} version:
+\begin{itemize}
+\item {\tt displayResults.cgi}
+\item {\tt preProcessForm.cgi}
+\item {\tt processForm.cgi}
+\item {\tt R.cgi}
+\item {\tt statusCheck.cgi}
+\item Also place \proglang{R} script(s) you want the website to run in the {\tt cgi-bin} folder.  To try out our example, copy the file {\tt example-turnkey.R}
+\end{itemize}
+
+For the {\tt developer} version:
+\begin{itemize}
+\item {\tt WebDevelopR-dev.cgi}
+\item Also place \proglang{R} script(s) you want the website to run in the {\tt cgi-bin} folder.  To try out our example, copy the files {\tt example-dev1.R} and {\tt example-dev2.R}.
+\end{itemize}
+
+
+You can typically find the location of the {\tt cgi-bin} folder in your web server's configuration file.  For instance, in Apache, this folder is specified by the {\tt ScriptAlias} directive in the configuration file.
+
+Set the permissions so that your web server can read and execute the files in the {\tt cgi-bin} directory.  On a Unix-like system, if your web server runs under a different username than yours the appropriate permissions are 755 for these files.  For example, you can set the appropriate permissions for the {\tt R.cgi} file by entering {\tt chmod 755 R.cgi} at a command prompt when you are in the {\tt cgi-bin} folder of your web server.  In a Windows environment, these permissions can be set in the dialog box brought up by right-clicking on the files and choosing ``Properties''.  The specific permissions you need to choose depend on the version of Windows you are using, but the idea is to allow the web server to have read and execute permissions for these files while restricting other permissions as much as possible.  On my version of Windows 7, that means setting \textit{Write} permissions to ``Deny''.
+
+On Unix-like systems, the permissions for the {\tt cgi-bin} folder itself should be 711, so that the web server can access files in it (but it does not need to be able to list files there or write to the folder).  On Windows 7, again we set \textit{Write} permissions to ``Deny''.  Once you have made these changes to the permissions, test running a CGI script such as {\tt printenv.pl} (which is included with Apache) to be sure that the web server can run CGI scripts.
+
+
+\paragraph*{{\tt system} folder:} Create a directory \textbf{outside} of your web server's document root and the {\tt cgi-bin} where ``system'' files can be stored and copy the contents of the system folder in the installation directory to it.  Your web server should have read and write access to the files in this directory and read, write, and execute permissions for the directory; on Unix-like systems, this corresponds to permissions of 666 for the files and 777 for the directory.
+
+
+\paragraph*{{\tt html} folder:}
+
+If you are using the {\tt developer} version of the package, you will be writing your own \proglang{HTML} files, so you don't need to copy any files here unless you want to view our examples.  If you want to try out the examples for the {\tt developer} version of the package or if you are using the {\tt turnkey} version, copy the contents of the {\tt html} folder in the appropriate subdirectory of the installation directory of \pkg{WebDevelopR} to your web server's {\tt html} folder  (or equivalent -- for the Apache server on Windows, this folder is named {\tt htdocs}).  You can typically find the location of the {\tt html} folder in your web server's configuration file.  In Apache, this folder is specified by the {\tt DocumentRoot} directive in the configuration file.
+
+Set the permissions of the {\tt .html} files in the {\tt html} folder, the {\tt .jpg} and {\tt .gif} files in the {\tt images} subfolder, the {\tt .js} files in the {\tt scripts} subfolder, and the {\tt style.css} file in the {\tt style} subfolder so that the web server has read access to them.  On Unix-like operating systems, the appropriate permissions for these files are given by 644.  On Windows 7, set \textit{Write} permissions for these files to ``Deny''.  On Unix, the web server needs to have execute permissions for these folders so that it can access files in them; the permissions for these folders should be set to 711.  On Windows, deny write access to these folders.
+
+If you are using the complete version of the package and your \proglang{R} script will be writing files for the site user to view, such as images or .csv files, the web server should have write and execute permissions for the {\tt results} subfolder of the {\tt html} folder.  On Unix, the appropriate permissions are given by 733, and on Windows 7 no changes should be made to the permissions.  If your script does not need to create output files, you can remove this folder.
+
+
+
+\subsection[Edit Configuration Settings]{Edit Configuration Settings}
+\label{subsec:configSettings}
+
+Configuration settings are located at the beginning of the {\tt .cgi} files in the {\tt cgi-bin} folder, and (for the {\tt turnkey} version of the package) in the JavaScript files {\tt formSubmitScript.js} and {\tt resultsScript.js} in the {\tt html/scripts} folder, as well as the {\tt index.html} file in the {\tt html} folder.  A list of all files in which configuration settings should be edited and the meaning of those configuration settings is below.  Note that many of these configuration settings have default values that will work for most users, and therefore may not need to be edited.  These settings are indicated with a ``\textit{(Default value OK)}'' flag.
+
+For the {\tt developer} version, all configuration settings are in the file {\tt WebDevelopR-dev.cgi} in the {\tt cgi-bin} directory.  The configuration settings in this file are:
+\begin{itemize}
+\item On the first line of the script, make sure the location of the \proglang{Perl} interpreter is specified correctly.  The format should be something like {\tt \#! /usr/bin/perl -wT} on Unix-like operating systems, or {\tt \#! c:/strawberryPerl/perl/bin/perl.exe -wT} on Windows.
+\item {\tt \$CGI::DISABLE\_UPLOADS} This setting determines whether file uploads are disabled ($1$) or enabled ($0$).  It is recommended that you disable uploads if they are not required for your web application.  This can prevent denial of service attacks on your server in which many files are uploaded.
+\item {\tt \$CGI::POST\_MAX } The size restriction (in bytes) for the total upload including any files uploaded and other data entered or selections made in the web form.
+\item {\tt \$system\_path} The full local server path to the directory where ``system'' files are stored.  The web server should have read/write access to this directory, but it should not be viewable over the internet (i.e., it should be located outside the document root of your web server).
+\item {\tt \$R\_path} The full local server path to \proglang{R}, including the executable.  On a Linux machine, this might be something like {\tt /usr/bin/R}
+\item {\tt \$GS\_path} The full local server path to Ghostscript, including the executable.  On a Linux machine, this might be something like {\tt /usr/bin/gs}
+\item {\tt \$R\_scripts} The name of the \proglang{R} script(s) you want to run.  If you want to run more than one script, enter them in a string separated by commas (but no whitespace).
+\item {\tt \$data\_type} The data type to be returned to the user's browser.  Should be {\tt "HTML"}, {\tt "XML"}, or {\tt "JSON"}.
+\item {\tt \$new\_path} The value the {\tt PATH} environment variable will be set to before \proglang{R} is called (this is done for security reasons).  On Linux, this can be an empty string; on Windows, it should include {\tt C:\textbackslash{\textbackslash}Windows\textbackslash{\textbackslash}system32}.
+\end{itemize}
+
+For the {\tt turnkey} version of the site, the same configuration settings for the CGI scripts often appear in multiple files.  The following table lists each configuration setting for the CGI scripts, the files they appear in, and gives a description of the setting.  In addition to these settings, make sure the location of the \proglang{Perl} interpreter is specified correctly on the first line of each script.  The format should be something like {\tt \#!c:/strawberryPerl/perl/bin/perl.exe -wT} on Windows, or {\tt \#! /usr/bin/perl -wT} on Unix-like operating systems.
+
+
+\smallskip
+
+\setlength\LTleft{0pt}
+\setlength\LTright{0pt}
+
+\begin{longtable}{p{4.5cm} p{4cm} p{5.5cm}}
+\caption{Configuration settings in CGI scripts for the complete version of \pkg{WebDevelopR}} \\
+\textbf{Variable Name} & \textbf{Files to Edit} & \textbf{Description of Setting} \\
+\hline
+\endfirsthead
+\caption{CGI script configuration settings (continued)} \\
+\textbf{Variable Name} & \textbf{Files to Edit} & \textbf{Description of Setting} \\
+\hline
+\endhead
+{\tt \$CGI::DISABLE\_UPLOADS} & {\tt preProcessForm.cgi} {\tt processForm.cgi} & This setting determines whether file uploads are disabled ($1$) or enabled ($0$).  It is recommended that you disable uploads if they are not required for your web application.  This can prevent denial of service attacks on your server in which many files are uploaded. \\
+\hline
+{\tt \$CGI::POST\_MAX } & {\tt preProcessForm.cgi} {\tt processForm.cgi} & The size restriction (in bytes) for the total upload including any files uploaded and other data entered or selections made in the web form. \\
+\hline
+{\tt \$GS\_path} & {\tt processForm.cgi} {\tt R.cgi} & The full local server path to Ghostscript, including the executable.  On a Linux machine, this might be something like {\tt /usr/bin/gs} \\
+\hline
+{\tt \$new\_path} & {\tt processForm.cgi} {\tt R.cgi} & The value the {\tt PATH} environment variable will be set to before \proglang{R} is called (this is done for security reasons).  On Linux, this can be an empty string; on Windows, it should include {\tt C:\textbackslash{\textbackslash}Windows\textbackslash{\textbackslash}system32}. \\
+\hline
+{\tt \$page\_header\_text} & {\tt displayResults.cgi} {\tt processform.cgi} & Header text for the web page -- appears in large lettering at the top of the web page. \\
+\hline
+{\tt \$R\_path} & {\tt processForm.cgi} {\tt R.cgi} & The full local server path to \proglang{R}, including the executable.  On a Linux machine, this might be something like {\tt /usr/bin/R} \\
+\hline
+{\tt \$R\_script} & {\tt processForm.cgi} {\tt R.cgi} & The name of the \proglang{R} script you want to run. \\
+\hline
+{\tt \$results\_page\_title} & {\tt displayResults.cgi} {\tt processform.cgi} & The title of the web page -- typically displayed in the bar at the top of the user's web browser. \\
+\hline
+{\tt \$results\_path} & {\tt processForm.cgi} {\tt R.cgi} & The full local server path to the {\tt results} subfolder of the {\tt html} directory. \\
+\hline
+{\tt \$system\_path} & {\tt displayResults.cgi} {\tt preProcessForm.cgi} {\tt processForm.cgi} {\tt R.cgi} {\tt statusCheck.cgi} & The full local server path to the directory where ``system'' files are stored, as created in Subsection \ref{Subsection:CopyAndPermissions} above. \\
+\hline
+{\tt \$cgibin\_web\_path} & {\tt displayResults.cgi} & \textit{(Default value OK)} The relative web path to the cgi-bin directory, where CGI scripts for the website are stored -- probably something like {\tt /cgi-bin/} \\
+\hline
+{\tt \$images\_web\_path} & {\tt displayResults.cgi} {\tt processform.cgi} & \textit{(Default value OK)} The relative web path to the images directory, where image files for the website are stored -- probably something like {\tt /images/} \\
+\hline
+{\tt \$results\_web\_path} & {\tt processForm.cgi} {\tt R.cgi} & \textit{(Default value OK)} The relative web path to the results directory, where any files you create for the website user during your analysis are stored (e.g. image and/or .csv files) -- probably something like {\tt /results/} \\
+\hline
+{\tt \$scripts\_web\_path} & {\tt displayResults.cgi} & \textit{(Default value OK)} The relative web path to the style directory, where .js javascript files for the website are stored -- probably something like {\tt /scripts/} \\
+\hline
+{\tt \$style\_web\_path} & {\tt displayResults.cgi} {\tt processform.cgi} & \textit{(Default value OK)} The relative web path to the style directory, where .css style files for the website are stored. \\
+\hline
+\end{longtable}
+ 
+
+There are also some configuration settings in the \proglang{JavaScript} files in the {\tt html/scripts} directory:
+\begin{itemize}
+\item formSubmitScript.js
+\begin{itemize}
+\item {\tt cgibinDir} \textit{(Default value OK)} The relative web path to the cgi-bin directory, where CGI scripts for the website are stored -- probably something like {\tt /cgi-bin/}
+\end{itemize}
+\item resultsScript.js
+\begin{itemize}
+\item {\tt statusCheckFrequency} \textit{(Default value OK)} The number of seconds to wait between polling the server for status updates.
+\item {\tt imagesDir} \textit{(Default value OK)} The relative web path to the images directory, where image files for the website are stored -- probably something like {\tt /images/}
+\end{itemize}
+\end{itemize}
+
+
+\subsection[Edit/create HTML file(s)]{Edit/create \proglang{HTML} file(s)}  The next step is to create the HTML pages for your site users to interact with your application.  For the {\tt turnkey} version of the package, you can do this by modifying {\tt index.html} to provide the necessary form elements and instructions.  This file has examples of all standard HTML form elements for your reference.  Setting up your document with a similar structure to the example will allow predefined style rules to lay out the form consistently.  Logically related form elements should be contained within a {\tt <fieldset>\ldots </fieldset>} tag, instruction text should be enclosed in a {\tt <p>\ldots </p>} tag, and each form element should consist of a {\tt <label>\ldots </label>} tag and some sort of form input element, both enclosed within a {\tt <div class="formItem">\ldots</div>} tag.  For more thorough documentation and examples of form input elements, see {\tt http://www.w3schools.com/html/html\_forms.asp}.
+
+There are also several other aspects of the included {\tt index.html} file to modify:
+\begin{itemize}
+\item On line 15, edit the title text.  This text is typically displayed in the bar at the top of the user's web browser.
+\item \textit{(Default value OK)} On line 21, if necessary, edit the relative web path for the {\tt style.css} file.
+\item \textit{(Default value OK)} On lines 27 - 29, if necessary, edit the relative web paths for the javascript files.
+\item On line 40, edit the header text.  This text is displayed in large text near the top of the web page.
+\item \textit{(Default value OK)} On line 58, if necessary, edit the relative web path for the processForm.cgi script.
+\end{itemize}
+
+
+
+\subsection[Modify your R script]{Modify your \proglang{R} script}
+
+You will need to update your \proglang{R} script in two ways.
+
+First, you will want to make use of any data or options specified by the user in the web form.  You can access this information via the \code{form.data} and \code{file.details} functions, as discussed in Section \ref{subsec:TurnkeyVersionOverview} above.  Note that no checks have been done to ensure that form data exists or is what you were expecting (e.g., that the user didn't actually type letters into a field where you expected them to enter a number).  You should explicitly check this in your R script and provide feedback to the user if something was entered incorrectly.
+
+Second, you will typically want to display results of the analysis to the web site user.  As discussed above, the package provides some utility functions to make it easier to embed images and links to data files in the web page, as well as to directly print \proglang{R} objects.  In addition to this, you can use the {\tt cat} function to print text (including HTML tags) to the user's browser.  To ensure that all browsers process your output correctly, be sure that your HTML output is well-formed (i.e. that each opening tag has a matching closing tag and that a tag that is opened inside of another tag is closed before the outer tag).  See the example script in Section \ref{subsubsection:TurnkeyExample} for how this works.
+
+Your \proglang{R} script should be placed in the {\tt cgi-bin} directory of your web server.
+
+
+
+
+\section[Utility Functions]{Utility Functions}
+\label{section:UtilFunctionDoc}
+
+We have provided a few utility functions that you can use in your R scripts to perform common tasks.  In this appendix we document these functions.  See also Section \ref{subsubsection:TurnkeyExample} for an example with some context.  Note that these functions are only relevant to the ``complete'' version of the package, since they rely on the structure of this particular web application.  However, the code may be useful as a reference to developers who encounter similar needs when using the ``core'' version.
+
+\begin{itemize}
+\item {\tt status.update}
+
+\RDocHeading{Description}
+
+Used to provide status updates to the user.  
+
+\RDocHeading{Usage}
+
+{\tt status.update(status, append=FALSE)}
+
+\RDocHeading{Arguments}
+
+{\tt status} The status message to be displayed to the site user.
+
+{\tt append} Should the status be added to previous status updates, or should it replace previous status updates?
+
+\RDocHeading{Details}
+
+This function writes status update text to the session-specific temporary file used for storing status updates.  These updates are automatically retrieved and displayed by the user's browser while the \proglang{R} script is running.
+
+\RDocHeading{Value}
+
+None
+
+\RDocHeading{Examples}
+
+\begin{Code}
+status.update("Processing your submission - Stage 1")
+
+status.update("Processing your submission - Stage 2", append=TRUE)
+\end{Code}
+
+\item {\tt web.jpeg} and {\tt web.png}
+
+\RDocHeading{Description} Used to create .png and .jpeg image files (respectively), and to embed these images in the results page.
+
+\RDocHeading{Usage} 
+
+{\tt web.jpeg(file.name="image.jpeg", attributes.text="", centered=TRUE, ...)}
+
+{\tt web.png(file.name="image.png", attributes.text="", centered=TRUE, ...)}
+
+\RDocHeading{Arguments}
+
+{\tt file.name} The name of the image file.  Note that {\tt file.name} will be pre-pended with ``session'', the session ID, and a dash.  For example, if you call {\tt web.jpeg} with the default argument of {\tt file.name = "image.jpeg"}, and the session ID is 23, the file name actually used for the image will be ``{\tt session23-image.jpeg}''.
+
+{\tt attributes.text} This text will be used for the attributes text of the HTML image tag.
+
+{\tt centered} Indicates whether the image should be centered when it is displayed to the user in the results page.
+
+{\tt ...} Arguments to {\tt jpeg} or {\tt png}, respectively.
+
+\RDocHeading{Details}
+
+These functions are wrappers for {\tt jpeg} and {\tt png}.  The functions store the image file in the results directory on your web server (this directory is specified in the configuration section at the top of the {\tt processForm.cgi} and {\tt R.cgi} CGI scripts).  They also create the necessary HTML tags to insert the image into the results page that is displayed to the site user.
+
+Note that in order to allow the web site user to access these files, they will not be deleted automatically.  You should periodically review files in the results directory and clear old ones out.
+
+\RDocHeading{Value}
+
+None
+
+\RDocHeading{Examples}
+
+\begin{Code}
+web.jpeg("plot.jpeg", attributes.text="alt=\"Your Plot\"", width=600,
+    height=300)
+plot(x=rnorm(10), y=rnorm(10))
+points(x=0, y=0, pch="+", col="red")
+garbage <- dev.off() # capture the output from calling dev.off to keep
+                     # it from being displayed in the results page
+
+web.png("plot.png", attributes.text="alt=\"Your Plot\"", width=600,
+    height=300)
+plot(x=rnorm(10), y=rnorm(10))
+points(x=0, y=0, pch="+", col="red")
+garbage <- dev.off() # capture the output from calling dev.off to keep
+                     # it from being displayed in the results page
+\end{Code}
+
+
+\item {\tt web.print}
+
+\RDocHeading{Description}
+
+Prints objects embedded in a nicely formatted {\tt <pre> ... </pre>} HTML environment (similar to verbatim in LaTeX).
+
+\RDocHeading{Usage}
+
+\begin{Code}
+web.print(objects, width = 80, leading.spaces.num = 2,
+    continued.line.indent.num = 6)
+\end{Code}
+
+\RDocHeading{Arguments}
+
+{\tt objects} A list of objects to print. (Note that objects is iterated over and every component is printed; if you don't embed the objects you want to print in a list, this could result in some funny behavior.  This is done to allow you to print multiple objects within the same shaded area on the results page.)
+
+{\tt width} Number of characters per line (not including {\tt leading.spaces.num} but including {\tt continued.line.indent.num}).
+
+{\tt leading.spaces.num} Number of spaces to insert before each line.  These spaces create some padding in the user display.
+
+{\tt continued.line.indent.num} If a line of more than {\tt width} characters is broken, the number of extra spaces to insert before the continued line.
+
+\RDocHeading{Details}
+
+{\tt web.print} allows you to send the result of a call to the {\tt print} function to the user's web browser.  The output is embedded in a {\tt <pre>} tag, which is displayed in the browser with a fixed width font and a shaded background.
+
+\RDocHeading{Value}
+
+None
+
+\RDocHeading{Examples}
+
+\begin{Code}
+data(iris)
+web.print(iris$Petal.Length) #each vector element is on a separate line
+web.print(list(iris$Petal.Length)) #probably want you wanted
+
+fit <- lm(Petal.Length ~ Petal.Width + Sepal.Length, data=iris)
+web.print(list(summary(fit), summary(fit)$cov.unscaled))
+\end{Code}
+
+
+\item {\tt web.table, web.csv, and web.csv2}
+
+\RDocHeading{Description}
+
+Prints a data frame or matrix to a .csv format file and inserts a link to the file in the results page displayed to the website user.
+
+\RDocHeading{Usage}
+
+\begin{Code}
+web.table(x, file.name = "table.txt", before.link.text="Click ",
+    link.text="here",
+    after.link.text=" to download your file.  (The link opens in a new
+    window or tab; alternatively, you can right-click or option-click on
+    the link and choose "Save As..." to download the file.)",
+    open.new.window=TRUE, attributes.text="", enclose.in.p = TRUE, ...)
+\end{Code}
+
+\begin{Code}
+web.csv(x, file.name = "table.csv", before.link.text="Click ",
+    link.text="here",
+    after.link.text=" to download your file.  (The link opens in a new
+    window or tab; alternatively, you can right-click or option-click on
+    the link and choose "Save As..." to download the file.)",
+    open.new.window=TRUE, attributes.text="", enclose.in.p = TRUE, ...)
+\end{Code}
+
+\begin{Code}
+web.csv2(x, file.name = "table.csv", before.link.text="Click ",
+    link.text="here",
+    after.link.text=" to download your file.  (The link opens in a new
+    window or tab; alternatively, you can right-click or option-click on
+    the link and choose "Save As..." to download the file.)",
+    open.new.window=TRUE, attributes.text="", enclose.in.p = TRUE, ...)
+\end{Code}
+
+\RDocHeading{Arguments}
+
+{\tt x} The object to be written to a file.  This is passed on to the write.table, write.csv, or write.csv2 function, which prefer that {\tt x} be a matrix or data frame.  If it is another data type, an attempt is made to coerce {\tt x} to a data frame.
+
+{\tt file.name} The name of the output file.  Note that {\tt file.name} will be pre-pended with ``session'', the session ID, and a dash.  For example, if you call {\tt web.csv} with the default argument of {\tt file.name = "table.csv"}, and the session ID is 23, the file name actually used for the image will be ``{\tt session23-table.csv}''.
+
+{\tt before.link.text} Text to be displayed in the results page immediately before the link.
+
+{\tt link.text} The clickable text displayed in the results page as a link to the output file.
+
+{\tt after.link.text} Text to be displayed in the results page immediately after the link.
+
+{\tt open.new.window} Indicates whether the link should be set to open in a new window.  The default is {\tt TRUE}; this prevents users from accidentally opening the csv file in the same screen and then having to re-submit their data for analysis to see other results.  Note that this option works by appending {\tt target="\_blank"} to the attributes text.
+
+{\tt attributes.text} Attributes text for the HTML link.
+
+{\tt enclose.in.p} If {\tt TRUE}, {\tt before.link.text}, the link, and {\tt after.link.text} are all placed within a paragraph HTML element.  Otherwise, this text is not placed within a block level HTML element.
+
+{\tt ...} Arguments to {\tt write.table}, {\tt write.csv}, or {\tt write.csv2}, respectively.
+
+\RDocHeading{Details}
+
+These functions are wrappers for {\tt write.table}, {\tt write.csv}, and {\tt write.csv2}, respectively.  The functions store the output file in the results directory on your web server (this directory is specified in the configuration section at the top of the {\tt processForm.cgi} and {\tt R.cgi} CGI scripts).  They also create the necessary HTML tags to insert a link to the output file into the results page that is displayed to the site user.
+
+Note that these files will not be deleted automatically.  You should periodically review files in the results directory and clear old ones out.
+
+\RDocHeading{Value}
+
+None
+
+\RDocHeading{Examples}
+
+\begin{Code}
+data(iris)
+web.table(iris, "iris.txt")
+web.csv(iris, "iris.csv")
+web.csv2(iris, "iris2.csv")
+\end{Code}
+
+\end{itemize}
+
+
+
+
+\section[Resources for Web Development]{Resources for Web Development}
+\label{section:WebDevResources}
+
+In this Appendix we list a few resources that we have found helpful in learning about web development, although whatever is available at your local book store will probably suffice too.
+
+The following websites cover web technologies like \proglang{HTML}, \proglang{CSS}, and \proglang{JavaScript}:
+\begin{itemize}
+\item {\tt http://www.webplatform.org/}
+\item {\tt http://reference.sitepoint.com/css}
+\end{itemize}
+
+There are also many \proglang{JavaScript} libraries that make developing web applications much easier.  One popular alternative is the jQuery library.  Tutorials and documentation for jQuery are online at {\tt http://jquery.com/}.  An extensive list of alternatives to jQuery is available on Wikipedia at {\tt http://en.wikipedia.org/wiki/List\_of\_JavaScript\_libraries}.
+
+
+We have found the books Web Design in a Nutshell \citep{Robbins:WebDesignNutshell} and CSS Web Site Design \citep{Meyer:CSSWebDesign} to be helpful in learning about \proglang{HTML} and \proglang{CSS}.  \proglang{JavaScript}: The Definitive Guide \citep{Flanagan:JavaScriptDefinitive} discusses \proglang{JavaScript} at an intermediate to advanced level.  Ajax in Action \citep{Craneetal:AJAXinAction} discusses all aspects of AJAX, including what AJAX is, what can be accomplished with it, how web applications using AJAX can be organized, an introduction to \proglang{JavaScript}, and a discussion of server-side technologies.
+
+The \proglang{R} packages \pkg{R2HTML} \citep{Lecoutre:R2HTML} and \pkg{brew} \citep{Horner:brew} can be helpful in generating \proglang{HTML} from \proglang{R}.
+
+\end{document}
+
+
+
+
